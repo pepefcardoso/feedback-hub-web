@@ -1,8 +1,17 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import { apiClient } from '@/lib/api-client'; // Correção da importação
+import { apiClient } from '@/lib/api-client';
 import { UserNav } from './user-nav';
 import { Button } from '@/components/ui/button';
+import { CreateFeedbackModal } from '@/components/feedback/create-feedback-modal';
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    [key: string]: unknown;
+}
 
 async function getUser() {
     const cookieStore = await cookies();
@@ -11,9 +20,9 @@ async function getUser() {
     if (!token) return null;
 
     try {
-        const user = await apiClient<any>('/users/me');
+        const user = await apiClient<User>('/users/me');
         return user;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -36,7 +45,10 @@ export async function Navbar() {
 
                 <div className="flex items-center gap-4">
                     {user ? (
-                        <UserNav user={user} />
+                        <>
+                            <CreateFeedbackModal />
+                            <UserNav user={user} />
+                        </>
                     ) : (
                         <>
                             <Button variant="ghost" asChild className="hidden sm:inline-flex">
