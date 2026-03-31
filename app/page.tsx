@@ -1,41 +1,57 @@
-import Link from 'next/link';
+import { apiClient } from "@/lib/api-client";
+import { FeedbackList } from "@/components/feedback/feedback-list";
+import { Sidebar } from "@/components/layout/sidebar";
+import { FeedbackListResponse } from "@/types/feedback";
 
-export default function Home() {
+interface HomeProps {
+  searchParams: Promise<{ category?: string; page?: string }>;
+}
+
+export default async function HomePage(props: HomeProps) {
+  const searchParams = await props.searchParams;
+
+  const params: Record<string, string> = {
+    page: searchParams.page || "1",
+    limit: "10",
+  };
+
+  if (searchParams.category && searchParams.category !== "All") {
+    params.category = searchParams.category;
+  }
+
+  let response: FeedbackListResponse | null = null;
+  let fetchError = false;
+
+  try {
+    response = await apiClient<FeedbackListResponse>("/feedbacks", { params });
+  } catch (error) {
+    console.error("Failed to fetch feedbacks on homepage:", error);
+    fetchError = true;
+  }
+
   return (
-    <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Feedback Hub</h1>
-      <p className="mb-6 text-gray-600">
-        Welcome to the Feedback Suggestion Feed.
-      </p>
+    <main className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="flex flex-col md:flex-row gap-8">
+        <Sidebar />
 
-      <nav className="flex gap-4 mb-8 pb-4 border-b">
-        <Link href="/login" className="text-blue-600 hover:underline">
-          Login
-        </Link>
-        <Link href="/register" className="text-blue-600 hover:underline">
-          Register
-        </Link>
-        <Link href="/admin" className="text-blue-600 hover:underline">
-          Admin Dashboard
-        </Link>
-      </nav>
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Feedback Suggestions
+            </h1>
+          </div>
 
-      <div className="border p-6 rounded-md bg-gray-50">
-        <h2 className="text-xl font-semibold mb-4">
-          Recent Feedback (Placeholder)
-        </h2>
-        <ul className="space-y-2">
-          <li>
-            <Link href="/feedback/1" className="text-blue-600 hover:underline">
-              Implement Dark Mode (ID: 1)
-            </Link>
-          </li>
-          <li>
-            <Link href="/feedback/2" className="text-blue-600 hover:underline">
-              Fix pagination on mobile (ID: 2)
-            </Link>
-          </li>
-        </ul>
+          {fetchError ? (
+            <div className="p-4 rounded-md bg-red-50 text-red-600 border border-red-200">
+              <p>Unable to load feedback suggestions at this time. Please try again later.</p>
+            </div>
+          ) : (
+            <FeedbackList
+              feedbacks={response?.data || []}
+              meta={response?.meta}
+            />
+          )}
+        </div>
       </div>
     </main>
   );
