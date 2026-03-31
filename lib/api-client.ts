@@ -12,6 +12,7 @@ export class AppError extends Error {
 
 interface FetchOptions extends RequestInit {
   params?: Record<string, string>;
+  skipRedirect?: boolean;
 }
 
 /**
@@ -71,6 +72,9 @@ export async function apiClient<T = unknown>(
     }
 
     if (response.status === 401) {
+      if (options.skipRedirect) {
+        throw new AppError("Unauthorized", 401);
+      }
       if (isServer) {
         redirect("/login");
       } else {
