@@ -1,8 +1,4 @@
-export type FeedbackStatus =
-  | "SUGGESTION"
-  | "PLANNED"
-  | "IN_PROGRESS"
-  | "COMPLETED";
+export type FeedbackStatus = "IDEA" | "PLANNED" | "IN_PROGRESS" | "COMPLETED";
 
 export interface FeedbackItem {
   id: string;
