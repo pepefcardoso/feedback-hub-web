@@ -2,6 +2,8 @@ import { AdminFeedbacksTable } from "@/components/admin/admin-feedbacks-table";
 import { apiClient } from "@/lib/api-client";
 import { FeedbackListResponse } from "@/types/feedback";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const response = await apiClient<FeedbackListResponse>("/feedbacks");
 

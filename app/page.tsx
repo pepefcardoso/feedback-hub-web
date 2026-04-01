@@ -4,6 +4,8 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { FeedbackSort } from "@/components/feedback/feedback-sort";
 import { FeedbackListResponse } from "@/types/feedback";
 
+export const dynamic = "force-dynamic";
+
 interface HomeProps {
   searchParams: Promise<{ category?: string; page?: string; sortBy?: string; order?: string }>;
 }

@@ -9,6 +9,8 @@ import { VoteButton } from "@/components/feedback/vote-button";
 import { CommentList } from "@/components/comment/comment-list";
 import { CommentForm } from "@/components/comment/comment-form";
 
+export const dynamic = "force-dynamic";
+
 interface FeedbackDetailPageProps {
   params: Promise<{ id: string }>;
 }
