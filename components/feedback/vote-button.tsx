@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronUp } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 
@@ -13,16 +13,25 @@ interface VoteButtonProps {
 export function VoteButton({ initialVoteCount, initialHasVoted, feedbackId }: VoteButtonProps) {
     const [isVoted, setIsVoted] = useState(initialHasVoted);
     const [count, setCount] = useState(initialVoteCount);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        setIsVoted(initialHasVoted);
+        setCount(initialVoteCount);
+    }, [initialHasVoted, initialVoteCount]);
 
     const handleVote = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const newVotedState = !isVoted;
-        const newCount = newVotedState ? count + 1 : count - 1;
+        if (isLoading) return;
 
-        setIsVoted(newVotedState);
-        setCount(newCount);
+        const previousVotedState = isVoted;
+        const previousCount = count;
+
+        setIsVoted(!previousVotedState);
+        setCount(previousVotedState ? previousCount - 1 : previousCount + 1);
+        setIsLoading(true);
 
         try {
             await apiClient(`/feedbacks/${feedbackId}/vote`, {
@@ -30,18 +39,22 @@ export function VoteButton({ initialVoteCount, initialHasVoted, feedbackId }: Vo
                 body: JSON.stringify({ type: "UPVOTE" }),
             });
         } catch (error) {
-            setIsVoted(!newVotedState);
-            setCount(count);
+            setIsVoted(previousVotedState);
+            setCount(previousCount);
             console.error("Failed to update vote", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
+        <button
+            type="button"
             onClick={handleVote}
-            className={`flex flex-col items-center p-2 transition-colors rounded-lg min-w-[48px] ${isVoted
+            disabled={isLoading}
+            aria-pressed={isVoted}
+            aria-label={isVoted ? "Remove upvote" : "Upvote"}
+            className={`flex flex-col items-center p-2 transition-colors rounded-lg min-w-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed ${isVoted
                     ? "bg-blue-100 hover:bg-blue-200"
                     : "bg-slate-50 hover:bg-blue-50 group-hover:bg-blue-50"
                 }`}
@@ -56,6 +69,6 @@ export function VoteButton({ initialVoteCount, initialHasVoted, feedbackId }: Vo
             >
                 {count}
             </span>
-        </div>
+        </button>
     );
 }
