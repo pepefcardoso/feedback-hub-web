@@ -36,12 +36,12 @@ export default function LoginPage() {
     try {
       setServerError(null);
 
-      const res = await apiClient<{ data: { user: AuthUser } }>('/users/login', {
+      const res = await apiClient<{ user: AuthUser }>('/users/login', {
         method: 'POST',
         body: JSON.stringify(data),
       });
 
-      setUser(res.data.user);
+      setUser(res.user);
       router.push('/');
     } catch (error) {
       setServerError(error instanceof AppError ? error.message : 'Login failed');
