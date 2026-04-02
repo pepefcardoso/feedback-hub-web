@@ -8,7 +8,7 @@ export function Footer() {
                 <div className="flex items-center gap-4">
                     <Link href="/about" className="hover:underline underline-offset-4">Sobre</Link>
                     <Link href="/privacy" className="hover:underline underline-offset-4">Privacidade</Link>
-                    <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">GitHub</a>
+                    <a href="https://github.com/pepefcardoso/feedback-hub" target="_blank" rel="noreferrer" className="hover:underline underline-offset-4">GitHub</a>
                 </div>
             </div>
         </footer>

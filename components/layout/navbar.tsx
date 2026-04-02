@@ -1,34 +1,13 @@
+"use client";
+
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { apiClient } from '@/lib/api-client';
+import { useAuth } from '@/context/AuthContext';
 import { UserNav } from './user-nav';
 import { Button } from '@/components/ui/button';
 import { CreateFeedbackModal } from '@/components/feedback/create-feedback-modal';
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    [key: string]: unknown;
-}
-
-async function getUser() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token');
-
-    if (!token) return null;
-
-    try {
-        const response = await apiClient<{ user: User }>('/users/me');
-        return response.user || null;
-    } catch {
-        return null;
-    }
-}
-
-export async function Navbar() {
-    const user = await getUser();
+export function Navbar() {
+    const { user, isLoading } = useAuth();
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -44,20 +23,24 @@ export async function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {user ? (
-                        <>
-                            <CreateFeedbackModal />
-                            <UserNav user={user} />
-                        </>
+                    {!isLoading ? (
+                        user ? (
+                            <>
+                                <CreateFeedbackModal />
+                                <UserNav user={user} />
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                                    <Link href="/login">Entrar</Link>
+                                </Button>
+                                <Button asChild>
+                                    <Link href="/register">Cadastrar</Link>
+                                </Button>
+                            </>
+                        )
                     ) : (
-                        <>
-                            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                                <Link href="/login">Entrar</Link>
-                            </Button>
-                            <Button asChild>
-                                <Link href="/register">Cadastrar</Link>
-                            </Button>
-                        </>
+                        <div className="w-24 h-8 bg-muted animate-pulse rounded-md" />
                     )}
                 </div>
             </div>
